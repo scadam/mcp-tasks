@@ -25,7 +25,7 @@ from fastmcp.client.transports import StreamableHttpTransport
 
 BASE_URL = os.getenv("MCP_BASE_URL")
 TASK_TIMEOUT = int(os.getenv("MCP_TASK_TIMEOUT_SECONDS", "330"))
-SMOKE_FAST = os.getenv("MCP_SMOKE_FAST", "") not in ("", "0", "false", "False")
+SMOKE_FAST = os.getenv("MCP_SMOKE_FAST", "").lower() not in ("", "0", "false")
 
 pytestmark = pytest.mark.skipif(
     not BASE_URL, reason="set MCP_BASE_URL to run deployment smoke tests"
