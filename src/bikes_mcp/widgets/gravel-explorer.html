@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravel Bikes</title>
+  <script>
+    // Auto theme: follow the host color scheme unless the host sets data-theme explicitly.
+    (function () {
+      var d = document.documentElement,
+        m = matchMedia('(prefers-color-scheme:dark)'),
+        auto = !d.hasAttribute('data-theme');
+      function sync() { d.setAttribute('data-theme', m.matches ? 'dark' : 'light'); }
+      if (auto) sync();
+      m.addEventListener('change', function () { if (auto) sync(); });
+      new MutationObserver(function () { auto = false; }).observe(d, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+  </script>
+  <style>
+    :root[data-theme="light"] {
+      --bg: #f4f6f8; --card: #ffffff; --text: #16202c; --muted: #5a6776;
+      --border: #e3e8ee; --accent: #d4451f; --chip: #f0f3f6; --shadow: rgba(20,32,44,.08);
+    }
+    :root[data-theme="dark"] {
+      --bg: #11161c; --card: #1b232c; --text: #e8eef4; --muted: #94a3b4;
+      --border: #2a3540; --accent: #ff6a3d; --chip: #232e39; --shadow: rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    #root { padding: 16px; }
+    .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .head h1 { font-size: 18px; margin: 0; letter-spacing: -0.2px; }
+    .head .meta { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px var(--shadow); transition: transform .15s ease, box-shadow .15s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px var(--shadow); }
+    .banner { height: 96px; display: flex; align-items: flex-end; padding: 10px 12px; color: #fff; font-weight: 600; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .body { padding: 12px 14px 14px; }
+    .name { font-size: 16px; font-weight: 650; margin: 0 0 2px; }
+    .brand { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+    .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 12.5px; margin-bottom: 10px; }
+    .specs .k { color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chip { background: var(--chip); border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; font-size: 11px; color: var(--muted); }
+    .foot { display: flex; align-items: center; justify-content: space-between; }
+    .price { font-size: 17px; font-weight: 700; }
+    .rating { font-size: 12.5px; color: var(--muted); }
+    .ask { background: transparent; border: 1px solid var(--border); color: var(--accent); border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+    .ask:hover { background: var(--chip); }
+    .loading { color: var(--muted); padding: 30px; text-align: center; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="root"><div class="loading">Loading gravel bikes…</div></div>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function reportHeight() {
+      if (window.openai && typeof window.openai.notifyIntrinsicHeight === "function") {
+        window.openai.notifyIntrinsicHeight(document.body.scrollHeight);
+      }
+    }
+    function askCopilot(prompt) {
+      if (window.openai && typeof window.openai.sendFollowUpMessage === "function") {
+        window.openai.sendFollowUpMessage({ prompt });
+      }
+    }
+    const money = (n, c) => new Intl.NumberFormat(undefined, { style: "currency", currency: c || "USD", maximumFractionDigits: 0 }).format(n);
+
+    function Card({ bike, currency }) {
+      return (
+        <div className="card">
+          <div className="banner" style={{ background: `linear-gradient(135deg, ${bike.imageColor}, ${bike.imageColor}cc)` }}>
+            {bike.category}
+          </div>
+          <div className="body">
+            <p className="name">{bike.name}</p>
+            <p className="brand">{bike.brand}</p>
+            <div className="specs">
+              <span className="k">Frame</span><span>{bike.frame}</span>
+              <span className="k">Groupset</span><span>{bike.groupset}</span>
+              <span className="k">Weight</span><span>{bike.weightKg} kg</span>
+              <span className="k">Tire clr.</span><span>{bike.tireClearanceMm} mm</span>
+            </div>
+            <div className="chips">
+              {(bike.highlights || []).map((h, i) => <span className="chip" key={i}>{h}</span>)}
+            </div>
+            <div className="foot">
+              <span className="price">{money(bike.priceUsd, currency)}</span>
+              <span className="rating">★ {bike.rating}</span>
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <button className="ask" onClick={() => askCopilot(`Tell me more about the ${bike.name} gravel bike.`)}>Ask about this bike</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App({ data }) {
+      useEffect(reportHeight);
+      const bikes = (data && data.bikes) || [];
+      if (!bikes.length) return <div className="loading">No bikes available.</div>;
+      return (
+        <div>
+          <div className="head">
+            <h1>{data.title || "Specialized gravel bikes"}</h1>
+            <span className="meta">{data.count} models · {money(data.priceRange.min, data.currency)}–{money(data.priceRange.max, data.currency)}</span>
+          </div>
+          <div className="grid">
+            {bikes.map((b) => <Card key={b.id} bike={b} currency={data.currency} />)}
+          </div>
+        </div>
+      );
+    }
+
+    async function boot() {
+      let data = (window.openai && window.openai.toolOutput) || null;
+      // Fallback: if the host did not inject structuredContent, fetch it via the tool.
+      if ((!data || !data.bikes) && window.openai && typeof window.openai.callTool === "function") {
+        try {
+          const out = await window.openai.callTool("list_gravel_bikes", (window.openai && window.openai.toolInput) || {});
+          data = (out && out.structuredContent) || out;
+        } catch (e) { /* ignore — render empty state */ }
+      }
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App data={data || {}} />);
+      setTimeout(reportHeight, 50);
+    }
+    boot();
+  </script>
+</body>
+</html>

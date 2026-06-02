@@ -1,0 +1,5 @@
+# Azure Functions Python worker
+azure-functions>=1.21.0
+
+# MCP server framework with SEP-1686 task support (in-process memory:// backend)
+fastmcp[tasks]>=3.3.1,<4

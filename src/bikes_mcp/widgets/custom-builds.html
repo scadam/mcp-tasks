@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Bike Builds</title>
+  <script>
+    (function () {
+      var d = document.documentElement,
+        m = matchMedia('(prefers-color-scheme:dark)'),
+        auto = !d.hasAttribute('data-theme');
+      function sync() { d.setAttribute('data-theme', m.matches ? 'dark' : 'light'); }
+      if (auto) sync();
+      m.addEventListener('change', function () { if (auto) sync(); });
+      new MutationObserver(function () { auto = false; }).observe(d, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+  </script>
+  <style>
+    :root[data-theme="light"] {
+      --bg: #f5f4f8; --card: #ffffff; --text: #1a1626; --muted: #5f5a70;
+      --border: #e6e3ee; --accent: #6d28d9; --chip: #f1eef8; --shadow: rgba(26,22,38,.08); --gold: #b78b2e;
+    }
+    :root[data-theme="dark"] {
+      --bg: #14111c; --card: #1e1a2a; --text: #ece8f5; --muted: #a39bb8;
+      --border: #2e2840; --accent: #a78bfa; --chip: #271f3a; --shadow: rgba(0,0,0,.4); --gold: #e6c069;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    #root { padding: 16px; }
+    .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .head h1 { font-size: 18px; margin: 0; letter-spacing: -0.2px; }
+    .head .meta { color: var(--muted); font-size: 13px; }
+    .list { display: flex; flex-direction: column; gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px var(--shadow); display: grid; grid-template-columns: 8px 1fr; }
+    .accentbar { width: 8px; }
+    .inner { padding: 14px 16px; }
+    .row1 { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .name { font-size: 17px; font-weight: 700; margin: 0; }
+    .badge { font-size: 11px; font-weight: 600; color: #fff; padding: 3px 10px; border-radius: 999px; }
+    .builder { color: var(--muted); font-size: 12px; margin: 2px 0 12px; }
+    .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px 16px; font-size: 12.5px; margin-bottom: 12px; }
+    .specs .k { color: var(--muted); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .custom { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .chip { background: var(--chip); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 11px; }
+    .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .price { font-size: 18px; font-weight: 750; }
+    .lead { font-size: 12px; color: var(--gold); font-weight: 600; }
+    .ask { background: transparent; border: 1px solid var(--border); color: var(--accent); border-radius: 8px; padding: 5px 11px; font-size: 12px; cursor: pointer; }
+    .ask:hover { background: var(--chip); }
+    .loading { color: var(--muted); padding: 30px; text-align: center; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="root"><div class="loading">Loading custom builds…</div></div>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+  <script type="text/babel">
+    const { useEffect } = React;
+
+    function reportHeight() {
+      if (window.openai && typeof window.openai.notifyIntrinsicHeight === "function") {
+        window.openai.notifyIntrinsicHeight(document.body.scrollHeight);
+      }
+    }
+    function askCopilot(prompt) {
+      if (window.openai && typeof window.openai.sendFollowUpMessage === "function") {
+        window.openai.sendFollowUpMessage({ prompt });
+      }
+    }
+    const money = (n, c) => new Intl.NumberFormat(undefined, { style: "currency", currency: c || "USD", maximumFractionDigits: 0 }).format(n);
+
+    function Card({ bike, currency }) {
+      return (
+        <div className="card">
+          <div className="accentbar" style={{ background: bike.imageColor }} />
+          <div className="inner">
+            <div className="row1">
+              <p className="name">{bike.name}</p>
+              <span className="badge" style={{ background: bike.imageColor }}>{bike.discipline}</span>
+            </div>
+            <p className="builder">{bike.builder}</p>
+            <div className="specs">
+              <div><span className="k">Frame</span>{bike.frameMaterial}</div>
+              <div><span className="k">Finish</span>{bike.finish}</div>
+              <div><span className="k">Groupset</span>{bike.groupset}</div>
+              <div><span className="k">Wheels</span>{bike.wheels}</div>
+            </div>
+            <div className="custom">
+              {(bike.customizations || []).map((c, i) => <span className="chip" key={i}>✦ {c}</span>)}
+            </div>
+            <div className="foot">
+              <span className="price">{money(bike.priceUsd, currency)}</span>
+              <span className="lead">⏱ {bike.buildTimeWeeks} week build</span>
+              <span style={{ color: "var(--muted)", fontSize: 12.5 }}>★ {bike.rating}</span>
+              <button className="ask" onClick={() => askCopilot(`Tell me more about the ${bike.name} custom build.`)}>Ask about this build</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App({ data }) {
+      useEffect(reportHeight);
+      const bikes = (data && data.bikes) || [];
+      if (!bikes.length) return <div className="loading">No custom builds available.</div>;
+      const lead = data.leadTimeWeeks;
+      return (
+        <div>
+          <div className="head">
+            <h1>{data.title || "Custom bicycle builds"}</h1>
+            <span className="meta">
+              {data.count} builds · {money(data.priceRange.min, data.currency)}–{money(data.priceRange.max, data.currency)}
+              {lead ? ` · ${lead.min}–${lead.max} wks` : ""}
+            </span>
+          </div>
+          <div className="list">
+            {bikes.map((b) => <Card key={b.id} bike={b} currency={data.currency} />)}
+          </div>
+        </div>
+      );
+    }
+
+    async function boot() {
+      let data = (window.openai && window.openai.toolOutput) || null;
+      if ((!data || !data.bikes) && window.openai && typeof window.openai.callTool === "function") {
+        try {
+          const out = await window.openai.callTool("design_custom_bikes", (window.openai && window.openai.toolInput) || {});
+          data = (out && out.structuredContent) || out;
+        } catch (e) { /* ignore */ }
+      }
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App data={data || {}} />);
+      setTimeout(reportHeight, 50);
+    }
+    boot();
+  </script>
+</body>
+</html>
