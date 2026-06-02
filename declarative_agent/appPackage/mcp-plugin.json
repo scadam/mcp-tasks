@@ -1,0 +1,84 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+    "schema_version": "v2.4",
+    "name_for_human": "Specialized Bikes MCP Server",
+    "description_for_human": "Specialized Bikes MCP Server lists in-stock gravel bikes and designs made-to-order custom builds.",
+    "description_for_model": "Use for the specialized bicycles catalog: list in-stock gravel & adventure bikes and design made-to-order custom bicycle builds. Both tools render interactive widgets; design_custom_bikes is a long-running MCP task.",
+    "contact_email": "scadam@microsoft.com",
+    "namespace": "mcpbikes",
+    "functions": [
+        {
+            "name": "list_gravel_bikes",
+            "description": "List in-stock specialized gravel & adventure bikes. Responds after about 20 seconds and renders the gravel bikes widget."
+        },
+        {
+            "name": "design_custom_bikes",
+            "description": "Generate a set of made-to-order custom bicycle builds. Long-running MCP task that returns a task id immediately and renders the custom builds widget."
+        }
+    ],
+    "runtimes": [
+        {
+            "type": "RemoteMCPServer",
+            "auth": {
+                "type": "None"
+            },
+            "run_for_functions": [
+                "list_gravel_bikes",
+                "design_custom_bikes"
+            ],
+            "spec": {
+                "url": "${{REMOTE_MCP_URL}}",
+                "mcp_tool_description": {
+                    "tools": [
+                        {
+                            "name": "list_gravel_bikes",
+                            "description": "List in-stock specialized gravel & adventure bikes. Responds after about 20 seconds and renders the gravel bikes widget.",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": false
+                            },
+                            "outputSchema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            "annotations": {
+                                "readOnlyHint": true,
+                                "title": "List gravel bikes"
+                            },
+                            "_meta": {
+                                "openai/outputTemplate": "ui://widgets/gravel-explorer.html",
+                                "openai/toolInvocation/invoking": "Pulling specialized gravel bikes…",
+                                "openai/toolInvocation/invoked": "Gravel bikes ready.",
+                                "openai/widgetAccessible": true
+                            }
+                        },
+                        {
+                            "name": "design_custom_bikes",
+                            "description": "Generate a set of made-to-order custom bicycle builds. This is a long-running operation (about 300 seconds) and runs as an MCP task: it returns a task id immediately and the result is retrieved via tasks/result once complete. Renders the custom builds widget.",
+                            "inputSchema": {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": false
+                            },
+                            "outputSchema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            },
+                            "annotations": {
+                                "readOnlyHint": true,
+                                "title": "Design custom bikes"
+                            },
+                            "_meta": {
+                                "openai/outputTemplate": "ui://widgets/custom-builds.html",
+                                "openai/toolInvocation/invoking": "Spinning up the custom build workshop…",
+                                "openai/toolInvocation/invoked": "Custom builds ready.",
+                                "openai/widgetAccessible": true
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
