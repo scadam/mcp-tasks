@@ -67,6 +67,8 @@ src/bikes_mcp/
 deploy/
   main.bicep                 Infrastructure (storage, plan, Function App)
   deploy.sh                  One-click deploy + smoke test
+  gateway.bicep              App Gateway + APIM front door (anonymous/public)
+  deploy-gateway.sh          Deploy the gateway chain + smoke test
 tests/
   test_server_local.py       In-process tests (tools, widgets, task lifecycle)
   test_deployment.py         Smoke tests against a deployed URL (MCP_BASE_URL)
@@ -118,3 +120,50 @@ Requirements: Azure CLI (logged in), Azure Functions Core Tools (`func`),
 ```bash
 az group delete --name <resource-group> --yes --no-wait
 ```
+
+## Public front door (Application Gateway + APIM)
+
+For deployments that need to sit behind Azure's standard edge services, an
+optional front door places **Application Gateway** and **API Management** in
+front of the Function App. The request path becomes:
+
+```
+MCP client ──► Application Gateway ──► API Management ──► Function App
+```
+
+Everything stays **anonymous and public** end-to-end: no function keys, no APIM
+subscription keys (`subscriptionRequired: false`), and no private networking
+between the hops (APIM is `virtualNetworkType: None`, App Gateway has a public
+frontend IP).
+
+### Supporting the long-running tool through the chain
+
+`design_custom_bikes` is a ~300s MCP task, and the MCP Streamable HTTP transport
+keeps a Server-Sent Events channel open. Both gateways are configured so neither
+cuts these off:
+
+* **Application Gateway** — the backend HTTP settings use a large
+  `requestTimeout` (`backendRequestTimeoutSeconds`, default `3600`) instead of
+  the ~30s default, so long-lived streaming connections are not reset.
+* **API Management** — the API policy forwards with `buffer-response="false"`
+  so SSE is streamed straight through rather than buffered, and uses the maximum
+  honored `forward-request` timeout. The MCP Tasks pattern keeps each
+  request/response short (a task id is returned immediately and the client
+  polls), while the SSE channel streams notifications.
+
+### Deploy the front door
+
+Provision the chain in front of an **already-deployed** Function App (run
+`deploy/deploy.sh` first). Provisioning API Management can take ~40 minutes.
+
+```bash
+az login
+# Auto-discovers the Function App in the resource group:
+./deploy/deploy-gateway.sh -g <resource-group>
+# Or target a specific Function App host explicitly:
+./deploy/deploy-gateway.sh -g <resource-group> -f <app>.azurewebsites.net
+```
+
+The script prints the Application Gateway public endpoint; point your MCP client
+at `http://<app-gateway-ip>/mcp`. The same `tests/test_deployment.py` smoke
+tests run through the gateway (with `MCP_SMOKE_FAST=1`).
