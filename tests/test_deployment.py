@@ -76,8 +76,11 @@ async def test_custom_builds_task_accepted_over_http():
         task = await client.call_tool(
             "design_custom_bikes", {}, task=True, ttl=TASK_TIMEOUT * 1000
         )
-        # The server must return a task id immediately rather than blocking for
-        # the full build (this is what keeps it under the Azure 230s HTTP limit).
+        # The server must accept the task for background execution (returns a
+        # task id) rather than running synchronously. returned_immediately is
+        # True only for synchronous/graceful-degradation execution, so the
+        # expected value here is False. This is what keeps the call under the
+        # Azure ~230s HTTP limit.
         assert task.returned_immediately is False
         assert task.task_id
 

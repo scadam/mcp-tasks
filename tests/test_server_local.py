@@ -80,7 +80,8 @@ async def test_custom_tool_requires_task_augmentation(server):
 async def test_custom_tool_task_lifecycle(server):
     async with Client(server) as client:
         task = await client.call_tool("design_custom_bikes", {}, task=True, ttl=60000)
-        # CreateTaskResult returned immediately, before completion.
+        # returned_immediately is True only if the server ran synchronously;
+        # False means the task was accepted for background execution (expected).
         assert task.returned_immediately is False
         assert task.task_id
 

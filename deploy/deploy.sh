@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ── Defaults ────────────────────────────────────────────────────────────────
-RAND="$(date +%s | tail -c 5)"
+RAND="$(date +%s | tail -c 6 | head -c 5)"
 RESOURCE_GROUP="rg-bikes-mcp-${RAND}"
 LOCATION="eastus"
 APP_NAME="bikesmcp${RAND}"

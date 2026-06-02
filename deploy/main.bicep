@@ -92,7 +92,6 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
       linuxFxVersion: 'Python|${pythonVersion}'
       alwaysOn: true
       functionAppScaleLimit: 1
-      minimumElasticInstanceCount: 1
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
       appSettings: [
