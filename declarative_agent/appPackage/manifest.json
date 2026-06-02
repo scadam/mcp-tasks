@@ -1,0 +1,38 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.25",
+    "version": "${{APP_VERSION}}",
+    "id": "${{TEAMS_APP_ID}}",
+    "developer": {
+        "name": "Specialized Bikes MCP",
+        "websiteUrl": "https://www.microsoft.com",
+        "privacyUrl": "https://www.microsoft.com/privacy",
+        "termsOfUseUrl": "https://www.microsoft.com/termsofuse"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "Specialized Bikes",
+        "full": "Specialized Bikes MCP declarative agent"
+    },
+    "description": {
+        "short": "Browse gravel bikes and design custom builds with Copilot using MCP.",
+        "full": "A Microsoft 365 Copilot declarative agent that browses in-stock specialized gravel bikes and designs made-to-order custom bicycle builds through a remote MCP server with interactive widgets."
+    },
+    "accentColor": "#FFFFFF",
+    "copilotAgents": {
+        "declarativeAgents": [
+            {
+                "id": "declarativeAgent",
+                "file": "declarative-agent.json"
+            }
+        ]
+    },
+    "validDomains": [
+        "*.azurewebsites.net",
+        "*.azure-api.net",
+        "*.cloudapp.azure.com"
+    ]
+}

@@ -1,0 +1,50 @@
+{
+    "tools": [
+        {
+            "name": "list_gravel_bikes",
+            "description": "List in-stock specialized gravel & adventure bikes. Responds after about 20 seconds and renders the gravel bikes widget.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "outputSchema": {
+                "type": "object",
+                "additionalProperties": true
+            },
+            "annotations": {
+                "readOnlyHint": true,
+                "title": "List gravel bikes"
+            },
+            "_meta": {
+                "openai/outputTemplate": "ui://widgets/gravel-explorer.html",
+                "openai/toolInvocation/invoking": "Pulling specialized gravel bikes\u2026",
+                "openai/toolInvocation/invoked": "Gravel bikes ready.",
+                "openai/widgetAccessible": true
+            }
+        },
+        {
+            "name": "design_custom_bikes",
+            "description": "Generate a set of made-to-order custom bicycle builds. This is a long-running operation (about 300 seconds) and runs as an MCP task: it returns a task id immediately and the result is retrieved via tasks/result once complete. Renders the custom builds widget.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            },
+            "outputSchema": {
+                "type": "object",
+                "additionalProperties": true
+            },
+            "annotations": {
+                "readOnlyHint": true,
+                "title": "Design custom bikes"
+            },
+            "_meta": {
+                "openai/outputTemplate": "ui://widgets/custom-builds.html",
+                "openai/toolInvocation/invoking": "Spinning up the custom build workshop\u2026",
+                "openai/toolInvocation/invoked": "Custom builds ready.",
+                "openai/widgetAccessible": true
+            }
+        }
+    ]
+}

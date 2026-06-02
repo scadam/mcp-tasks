@@ -1,0 +1,23 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
+    "version": "v1.6",
+    "name": "Specialized Bikes ${{APP_VERSION}}",
+    "description": "Browse in-stock specialized gravel bikes and design made-to-order custom bicycle builds with Microsoft Copilot, powered by an MCP server with interactive widgets.",
+    "instructions": "$[file('instructions.txt')]",
+    "conversation_starters": [
+        {
+            "title": "List Gravel Bikes",
+            "text": "Show the in-stock specialized gravel and adventure bikes and open the gravel bikes widget."
+        },
+        {
+            "title": "Design Custom Bikes",
+            "text": "Design a set of made-to-order custom bicycle builds and open the custom builds widget."
+        }
+    ],
+    "actions": [
+        {
+            "id": "bikes-mcp-plugin",
+            "file": "mcp-plugin.json"
+        }
+    ]
+}
