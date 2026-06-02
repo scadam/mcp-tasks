@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bikes-mcp"
+version = "0.1.0"
+description = "Specialized Bicycles MCP server (FastMCP) for Azure Functions, with Skybridge widgets and MCP Tasks."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp[tasks]>=3.3.1,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.28",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bikes_mcp = ["widgets/*.html"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
