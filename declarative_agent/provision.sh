@@ -56,6 +56,11 @@ if ! command -v atk >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ERROR: 'python3' not found; it is required to sync tools.json." >&2
+    exit 1
+fi
+
 # ── Keep mcp-plugin.json's tool description in sync with tools.json ──────────
 echo "Syncing tools.json into mcp-plugin.json ..."
 python3 - <<'PY'
