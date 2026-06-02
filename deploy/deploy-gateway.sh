@@ -34,7 +34,9 @@ PUBLISHER_EMAIL="admin@example.com"
 RUN_TESTS="true"
 
 usage() {
-  grep '^#' "$0" | sed 's/^# \{0,1\}//' | sed -n '2,30p'
+  # Print the leading comment block (from line 2 until the first non-comment
+  # line), stripping the leading "# ". Robust to changes in the block length.
+  awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"
   exit "${1:-0}"
 }
 

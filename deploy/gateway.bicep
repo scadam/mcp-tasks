@@ -159,8 +159,10 @@ resource mcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-05-01-
   </inbound>
   <backend>
     <!-- buffer-response="false" => stream Server-Sent Events to the client.
-         timeout is the max honored by forward-request; the MCP Tasks pattern
-         keeps the actual request/response short while the SSE channel streams. -->
+         The forward-request timeout is fixed at 240s, the maximum APIM honors
+         (values above 240s are ignored), independent of the App Gateway
+         backendRequestTimeoutSeconds. The MCP Tasks pattern keeps each
+         request/response short while the SSE channel streams notifications. -->
     <forward-request buffer-response="false" timeout="240" />
   </backend>
   <outbound>
